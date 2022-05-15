@@ -112,7 +112,7 @@ class Player:
         l = self.check_input_stock(stocks, state)
         t = self.check_return(stock_return, stocks)
         if t == False:
-            print(Fore.LIGHTRED_EX, str(self.name), "KHÔNG THỂ LẤY NGUYÊN LIỆU DO ĐẦU VÀO BỊ LỖI", end='')
+            print(Fore.LIGHTRED_EX, str(self.name), "KHÔNG THỂ LẤY NGUYÊN LIỆU DO ĐẦU VÀO BỊ LỖI", 'stock:', stocks, 'return:', stock_return, end='')
             print(Style.RESET_ALL)
             return None
         if l == 1:
@@ -137,11 +137,11 @@ class Player:
         types_stock = len(list(set(arr_stock)))
         scale = amount_stock/types_stock
         if "auto_color" in arr_stock:
-            print(Fore.LIGHTRED_EX, str(self.name), "LỖI ĐẦU VÀO LẤY STOCK AUTO_COLOR", end='')
+            print(Fore.LIGHTRED_EX, str(self.name), "LỖI ĐẦU VÀO LẤY STOCK AUTO_COLOR", arr_stock, end='')
             print(Style.RESET_ALL)
             return 0
         if amount_stock > 3 or scale == 3 or scale == 1.5:
-            print(Fore.LIGHTRED_EX, str(self.name), "LỖI ĐẦU VÀO LẤY KHÔNG ĐÚNG SỐ LƯỢNG LOẠI, HOẶC SỐ LƯỢNG STOCK", end='')
+            print(Fore.LIGHTRED_EX, str(self.name), "LỖI ĐẦU VÀO LẤY KHÔNG ĐÚNG SỐ LƯỢNG LOẠI, HOẶC SỐ LƯỢNG STOCK", arr_stock, end='')
             print(Style.RESET_ALL)
             return 0
         if scale == 1:
@@ -153,13 +153,13 @@ class Player:
         if self.validate_stock(arr_stock) == 1:
             for stock in arr_stock:
                 if state["Board"].stocks[stock] == 0:
-                    print(Fore.LIGHTRED_EX, str(self.name), "KHÔNG ĐỦ ĐIỀU KIỆN NGUYÊN LIỆU TRÊN BÀN", end='')
+                    print(Fore.LIGHTRED_EX, str(self.name), "KHÔNG ĐỦ ĐIỀU KIỆN NGUYÊN LIỆU TRÊN BÀN", arr_stock, end='')
                     print(Style.RESET_ALL)
                     return 0
             return 1
         if self.validate_stock(arr_stock) == 2:
             if state["Board"].stocks[arr_stock[0]] < 4:
-                print(Fore.LIGHTRED_EX, str(self.name), "không đủ điều kiện trên bàn".upper(), end='')
+                print(Fore.LIGHTRED_EX, str(self.name), "không đủ điều kiện trên bàn".upper(), arr_stock, end='')
                 print(Style.RESET_ALL)
                 return 0
             return 2
