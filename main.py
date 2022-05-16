@@ -33,7 +33,8 @@ def main():
         o,a,done,t = env.step(env.player[env.turn%env.amount_player].action(env.state))
         env.render()
         if env.turn % 50 == 1:
-            input()
+            # input()
+            pass
         if done == True:
             break
     state = env.state
