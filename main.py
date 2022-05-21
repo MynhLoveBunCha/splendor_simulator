@@ -41,5 +41,6 @@ def main():
     print(check_winner(state))
 
 if __name__ == '__main__':
-    main()
+    for _ in range(100):
+        main()
 

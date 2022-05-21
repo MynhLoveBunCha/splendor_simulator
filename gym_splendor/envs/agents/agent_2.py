@@ -15,11 +15,12 @@ class Agent(Player):
         affordable_cards_list = self.get_affordable_cards(state['Board'])
         if len(affordable_cards_list) == 0:
             wanted_card, _ = self.get_most_viable_unaffordable_card(state)
-            stocks_need = self.get_stocks_need(wanted_card)
-            stocks = self.check_get_stocks(stocks_need, state['Board'].stocks)
+            # stocks_need = self.get_stocks_need(wanted_card)
+            stocks = self.check_get_stocks(wanted_card, state['Board'].stocks)
             stock_return = self.get_stock_return(stocks, state['Board'])
             if stocks == []:
                 return stocks, wanted_card, stock_return, 3
+
             card = None
         else:
             card_afford = self.get_most_viable_affordable_card(affordable_cards_list)
@@ -27,7 +28,7 @@ class Agent(Player):
             chip_buy_afford = self.evaluate_affordable_card(card_afford)
             stocks_need_unafford = self.get_stocks_need(card_unafford)
             if chip_buy_afford > sum(stocks_need_unafford.values()):
-                stocks = self.check_get_stocks(stocks_need_unafford, state['Board'].stocks)
+                stocks = self.check_get_stocks(card_unafford, state['Board'].stocks)
                 stock_return = self.get_stock_return(stocks, state['Board'])
                 if stocks == []:
                     return stocks, card_unafford, stock_return, 3
@@ -88,7 +89,7 @@ class Agent(Player):
         return ret
     
 
-    def check_get_stocks(self, stocks_need, stocks_onboard):
+    def check_get_stocks(self, wanted_card, stocks_onboard):
         '''
         check whether the player can get the stocks needed
             param:
@@ -99,7 +100,7 @@ class Agent(Player):
         '''
         stocks_onboard_can_get = {}
         wanted_stocks = []
-
+        stocks_need = self.get_stocks_need(wanted_card)
         # get intersect keys betweenn stock_onboard and stock_need
         for key, val in stocks_onboard.items():
             if key != 'auto_color' and val != 0:
@@ -116,7 +117,7 @@ class Agent(Player):
         
         # get wanted_stocks
         if len(intersect_keys) == 0:
-            if stocks_onboard['auto_color'] != 0 and len(self.card_upside_down) < 3:
+            if stocks_onboard['auto_color'] != 0 and len(self.card_upside_down) < 2 and wanted_card not in self.card_upside_down:
                 return []
             tmp_length = len(list_stocks_onboard)
             if tmp_length == 1:
@@ -229,8 +230,8 @@ class Agent(Player):
         # affordable_cards = self.get_affordable_cards(board)
         cards_onboard = board.dict_Card_Stocks_Show  # dictionary
         cards_deposit = self.card_upside_down  # list
-        # list_card = cards_deposit + cards_onboard['I'] + cards_onboard['II'] + cards_onboard['III']
-        list_card = cards_onboard['I'] + cards_onboard['II'] + cards_onboard['III']
+        list_card = cards_deposit + cards_onboard['I'] + cards_onboard['II'] + cards_onboard['III']
+        # list_card = cards_onboard['I'] + cards_onboard['II'] + cards_onboard['III']
 
         # get unaffordable cards
         unaffordable = []
