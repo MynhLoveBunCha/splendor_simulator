@@ -116,7 +116,7 @@ class Agent(Player):
         
         # get wanted_stocks
         if len(intersect_keys) == 0:
-            if stocks_onboard['auto_color'] != 0 and len(self.card_upside_down) < 2:
+            if stocks_onboard['auto_color'] != 0 and len(self.card_upside_down) < 3:
                 return []
             tmp_length = len(list_stocks_onboard)
             if tmp_length == 1:
@@ -202,7 +202,7 @@ class Agent(Player):
             list_stock_onboard = []
             for item in list(stocks_onboard.items()):
                 list_stock_onboard.append(list(item))
-            list_stock_onboard.sort(key=lambda x : x[1], reverse=False)
+            list_stock_onboard.sort(key=lambda x : x[1], reverse=True)
         
         # return excess chips
         for _ in range(excess):
@@ -211,7 +211,7 @@ class Agent(Player):
                 if item[0] in my_stocks_chips.keys() and my_stocks_chips[item[0]] > 0:
                     list_stock_onboard[i][1] += 1
                     ret.append(item[0])
-                    list_stock_onboard.sort(key=lambda x : x[1], reverse=False)
+                    list_stock_onboard.sort(key=lambda x : x[1], reverse=True)
                     my_stocks_chips[item[0]] -= 1
                     break
         return ret
@@ -229,7 +229,8 @@ class Agent(Player):
         # affordable_cards = self.get_affordable_cards(board)
         cards_onboard = board.dict_Card_Stocks_Show  # dictionary
         cards_deposit = self.card_upside_down  # list
-        list_card = cards_deposit + cards_onboard['I'] + cards_onboard['II'] + cards_onboard['III']
+        # list_card = cards_deposit + cards_onboard['I'] + cards_onboard['II'] + cards_onboard['III']
+        list_card = cards_onboard['I'] + cards_onboard['II'] + cards_onboard['III']
 
         # get unaffordable cards
         unaffordable = []
