@@ -23,7 +23,10 @@ class Agent(Player):
             card_unafford, _ = self.get_most_viable_unaffordable_card(state)
             chip_buy_afford = self.evaluate_affordable_card(card_afford)
             stocks_need_unafford = self.get_stocks_need(card_unafford)
-            if chip_buy_afford > sum(stocks_need_unafford.values()):
+            ratio_afford = card_afford.score / (chip_buy_afford + 2)
+            ratio_unafford = card_unafford.score / (sum(stocks_need_unafford.values()) + 0.01)
+            # if chip_buy_afford > sum(stocks_need_unafford.values()):
+            if ratio_afford > ratio_unafford:
                 stocks = self.check_get_stocks(card_unafford, state['Board'].stocks)
                 stock_return = self.get_stock_return(stocks, card_unafford)
                 if stocks == []:
@@ -330,7 +333,7 @@ class Agent(Player):
         for key in self.stocks_const:
             chips_buy.update({key: max(0, dict_buy[key] - self.stocks_const[key])})
             
-        return affordable_card.score / (sum(chips_buy.values()) + 1)
+        return affordable_card.score / (sum(chips_buy.values()) + 3)
 
 
     @staticmethod
