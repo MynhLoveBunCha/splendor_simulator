@@ -314,7 +314,7 @@ class Agent(Player):
         '''
         needed_stocks = self.get_stocks_need(unaffordable_card)
         # return sum(needed_stocks.values()) - unaffordable_card.score
-        return unaffordable_card.score / max(1, sum(needed_stocks.values()))
+        return unaffordable_card.score / (sum(needed_stocks.values()) + 0.01)
 
 
     def evaluate_affordable_card(self, affordable_card):
@@ -330,7 +330,7 @@ class Agent(Player):
         for key in self.stocks_const:
             chips_buy.update({key: max(0, dict_buy[key] - self.stocks_const[key])})
             
-        return affordable_card.score / max(1, sum(chips_buy.values()))
+        return affordable_card.score / (sum(chips_buy.values()) + 1)
 
 
     @staticmethod
