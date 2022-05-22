@@ -22,7 +22,7 @@ class Agent(Player):
             for key in dict_needed_stocks.keys():
                 if dict_needed_stocks[key] != 0:
                     stocks.append(key)
-                if len(stocks) > 3:
+                if len(stocks) >= 3:
                     break
             stock_return = self.get_stock_return(stocks)
         return stocks, card, stock_return
