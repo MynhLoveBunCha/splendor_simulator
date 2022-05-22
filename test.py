@@ -81,8 +81,8 @@ def get_stock_return(my_stocks, wanted_stocks, wanted_card_stocks):  #TODO: fini
     print(ret)
 
 
-stocks = ['black', 'black']
-my_stocks = {"red": 2, "blue": 1, "green": 2, "black": 2, "white": 2, "auto_color": 1}
-wanted_card_stocks = {"red": 3, "blue": 5, "green": 3, "black": 3, "white": 0}
+stocks = ['red', 'black', 'white']
+my_stocks = {"red": 6, "blue": 0, "green": 0, "black": 3, "white": 0, "auto_color": 1}
+wanted_card_stocks = {"red": 7, "blue": 0, "green": 0, "black": 3, "white": 0}
 
 get_stock_return(my_stocks, stocks, wanted_card_stocks)

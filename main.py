@@ -26,7 +26,7 @@ def check_winner(state):
         return "None"
 
 def main():
-    global count_minh
+    global count_minh, count_lmao1, count_lmao3, count_lmao4
     env = gym.make('gym_splendor-v0')
     env.reset()
     env.render()
@@ -42,10 +42,22 @@ def main():
     print(check_winner(state))
     if check_winner(state)[0] == 'nhat_minh':
         count_minh += 1
+    elif check_winner(state)[0] == 'lmao1':
+        count_lmao1 += 1
+    elif check_winner(state)[0] == 'lmao3':
+        count_lmao3 += 1
+    elif check_winner(state)[0] == 'lmao4':
+        count_lmao4 += 1
 
 if __name__ == '__main__':
     count_minh = 0
+    count_lmao1 = 0
+    count_lmao3 = 0
+    count_lmao4 = 0
     for _ in range(100):
         main()
-    print(count_minh)
+    print('minh: ', count_minh)
+    print('lmao1: ', count_lmao1)
+    print('lmao3: ', count_lmao3)
+    print('lmao4: ', count_lmao4)
 

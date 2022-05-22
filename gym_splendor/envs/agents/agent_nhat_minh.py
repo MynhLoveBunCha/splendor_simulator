@@ -186,8 +186,8 @@ class Agent(Player):
         # get num of excess chips
         my_stocks_dict = copy.deepcopy(self.stocks)
         for item in wanted_stocks:
-            if item in my_stocks_dict.keys():
-                my_stocks_dict[item] += 1
+            # if item in my_stocks_dict.keys():
+            my_stocks_dict[item] += 1
         excess = max(0, sum(my_stocks_dict.values()) - 10)
         if excess == 0:
             return []
