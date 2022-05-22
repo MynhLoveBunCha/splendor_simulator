@@ -26,6 +26,7 @@ def check_winner(state):
         return "None"
 
 def main():
+    global count_minh
     env = gym.make('gym_splendor-v0')
     env.reset()
     env.render()
@@ -39,8 +40,12 @@ def main():
             break
     state = env.state
     print(check_winner(state))
+    if check_winner(state)[0] == 'nhat_minh':
+        count_minh += 1
 
 if __name__ == '__main__':
+    count_minh = 0
     for _ in range(100):
         main()
+    print(count_minh)
 

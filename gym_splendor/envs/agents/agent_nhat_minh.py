@@ -1,6 +1,7 @@
 from ..base.player import Player
 import random
 import math
+import copy
 
 
 class Agent(Player):
@@ -8,16 +9,11 @@ class Agent(Player):
         super().__init__(name)
 
     def action(self, state):
-        # stocks = []
-        # card = None
-        # stock_return = []
-
         affordable_cards_list = self.get_affordable_cards(state['Board'])
         if len(affordable_cards_list) == 0:
             wanted_card, _ = self.get_most_viable_unaffordable_card(state)
-            # stocks_need = self.get_stocks_need(wanted_card)
             stocks = self.check_get_stocks(wanted_card, state['Board'].stocks)
-            stock_return = self.get_stock_return(stocks, state['Board'])
+            stock_return = self.get_stock_return(stocks, wanted_card)
             if stocks == []:
                 return stocks, wanted_card, stock_return, 3
 
@@ -29,7 +25,7 @@ class Agent(Player):
             stocks_need_unafford = self.get_stocks_need(card_unafford)
             if chip_buy_afford > sum(stocks_need_unafford.values()):
                 stocks = self.check_get_stocks(card_unafford, state['Board'].stocks)
-                stock_return = self.get_stock_return(stocks, state['Board'])
+                stock_return = self.get_stock_return(stocks, card_unafford)
                 if stocks == []:
                     return stocks, card_unafford, stock_return, 3
                 card = None
@@ -178,47 +174,92 @@ class Agent(Player):
         return ret
 
 
-    def get_stock_return(self, stocks, my_board):
+    def get_stock_return(self, wanted_stocks, wanted_card):
         '''
+        return list of excess stocks
             param:
-                stocks: list of string 
-                my_board: (class Board) - get the board from the state
+                wanted_stocks: list of string - stocks that the player wants to take
+                wanted_cards: card obj 
             return:
-                a list of excess chips based on the least chips on board
+                stocks_return: list of string
         '''
+        # get num of excess chips
+        my_stocks_dict = copy.deepcopy(self.stocks)
+        for item in wanted_stocks:
+            if item in my_stocks_dict.keys():
+                my_stocks_dict[item] += 1
+        excess = max(0, sum(my_stocks_dict.values()) - 10)
+        if excess == 0:
+            return []
 
-        # get number of excess chips
-        my_stocks_chips = self.stocks
+        # get wanted_card_stocks
+        wanted_card_stocks = wanted_card.stocks
+
+        # get list of returnable stocks
+        returnable_stocks = {}
+        for item in my_stocks_dict:
+            if item in wanted_card_stocks and item != 'auto_color':
+                returnable_stocks.update({item : max(0, my_stocks_dict[item] - wanted_card_stocks[item])})
+        list_returnable_stocks = []
+        for key, val in returnable_stocks.items():
+            list_returnable_stocks.append([key, val])
+        list_returnable_stocks.sort(key=lambda x:x[1], reverse=True)
+
+        # get stocks_return
         ret = []
-        for item in stocks:
-            if item in my_stocks_chips.keys():
-                my_stocks_chips[item] += 1
-        excess = max(0, sum(my_stocks_chips.values()) - 10)
+        if sum(returnable_stocks.values()) >= excess:
+            for _ in range(excess):
+                ret.append(list_returnable_stocks[0][0])
+                list_returnable_stocks[0][1] -= 1
+                list_returnable_stocks.sort(key=lambda x:x[1], reverse=True)
+        else:
+            # get new_returnable_list
+            card_stocks_dict = {}
+            for key, val in wanted_card_stocks.items():
+                if val != 0:
+                    card_stocks_dict.update({key : val})
+            new_returnable_list = []
+            for key in card_stocks_dict:
+                if my_stocks_dict[key] != 0:
+                    new_returnable_list.append([key, my_stocks_dict[key], card_stocks_dict[key]])
+            new_returnable_list.sort(key=lambda x : x[2], reverse=False)
 
-        # get stocks on board and sort in ascending order
-        if excess > 0:
-            stocks_onboard = my_board.stocks  # dict
-            stocks_onboard.pop('auto_color')
-            # list_stock_onboard = list(stocks_onboard.items())
-            list_stock_onboard = []
-            for item in list(stocks_onboard.items()):
-                list_stock_onboard.append(list(item))
-            list_stock_onboard.sort(key=lambda x : x[1], reverse=True)
-        
-        # return excess chips
-        for _ in range(excess):
-            for i in range(len(list_stock_onboard)):
-                item = list_stock_onboard[i]
-                if item[0] in my_stocks_chips.keys() and my_stocks_chips[item[0]] > 0:
-                    list_stock_onboard[i][1] += 1
-                    ret.append(item[0])
-                    list_stock_onboard.sort(key=lambda x : x[1], reverse=True)
-                    my_stocks_chips[item[0]] -= 1
-                    break
+            # get unnecessary type stocks
+            unnecessary_stocks = []
+            for key in my_stocks_dict:
+                if key not in card_stocks_dict and key != 'auto_color' and my_stocks_dict[key] != 0:
+                    unnecessary_stocks.append(key)
+
+            #
+            if len(unnecessary_stocks) == 0:
+                if excess == 1:
+                    ret.append(new_returnable_list[0][0])
+                elif excess == 2:
+                    ret.append(new_returnable_list[0][0])
+                    ret.append(new_returnable_list[1][0])
+                elif excess == 3:
+                    ret.append(new_returnable_list[0][0])
+                    ret.append(new_returnable_list[1][0])
+                    ret.append(new_returnable_list[2][0])
+            elif len(unnecessary_stocks) > 0:
+                for type_stock in unnecessary_stocks:
+                    if len(ret) < excess:
+                        for _ in range(returnable_stocks[type_stock]):
+                            ret.append(type_stock)
+                new_excess = excess - len(ret)
+                if new_excess == 1:
+                    ret.append(new_returnable_list[0][0])
+                elif new_excess == 2:
+                    ret.append(new_returnable_list[0][0])
+                    ret.append(new_returnable_list[1][0])
+                elif new_excess == 3:
+                    ret.append(new_returnable_list[0][0])
+                    ret.append(new_returnable_list[1][0])
+                    ret.append(new_returnable_list[2][0])
         return ret
 
 
-    def get_most_viable_unaffordable_card(self, state):  # optimize this function
+    def get_most_viable_unaffordable_card(self, state):
         '''
         return the most viable card
             param: 

@@ -13,7 +13,7 @@ class Agent(Player):
         stock_return = []
         
         list_affordable_card = self.get_affordable_cards(state['Board'])
-        list_II_card_show = state['Board'].dict_Card_Stocks_Show['II']
+        list_II_card_show = state['Board'].dict_Card_Stocks_Show['I'] + state['Board'].dict_Card_Stocks_Show['II'] + state['Board'].dict_Card_Stocks_Show['III']
         if len(list_affordable_card):
             card = list_affordable_card[random.randint(0, len(list_affordable_card) - 1)]
         else:
