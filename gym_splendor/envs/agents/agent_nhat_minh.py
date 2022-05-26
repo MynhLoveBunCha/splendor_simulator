@@ -9,35 +9,63 @@ class Agent(Player):
         super().__init__(name)
 
     def action(self, state):
+        stocks = []
+        stock_return = []
         affordable_cards_list = self.get_affordable_cards(state['Board'])
+        dict_stocks_onboard = {}
+        for key, val in state['Board'].stocks.items():
+            if key != 'auto_color' and val != 0:
+                dict_stocks_onboard.update({key : val})
         if len(affordable_cards_list) == 0:
             wanted_card, _ = self.get_most_viable_unaffordable_card(state)
             stocks = self.check_get_stocks(wanted_card, state['Board'].stocks)
             stock_return = self.get_stock_return(stocks, wanted_card)
             if stocks == []:
                 return stocks, wanted_card, stock_return, 3
-
-            card = None
+            tmp_keys = []
+            for key in dict_stocks_onboard.keys():
+                if key not in stocks:
+                    tmp_keys.append(key)
+            if len(stocks) == 1 and len(tmp_keys) == 1:
+                stocks.append(tmp_keys[0])
+            elif len(stocks) == 1 and len(tmp_keys) >=2:
+                stocks += random.sample(tmp_keys, k=2)
+            elif len(stocks) == 2 and stocks[0] != stocks[1] and len(tmp_keys) == 1:
+                stocks.append(tmp_keys[0])
+            elif len(stocks) == 2 and stocks[0] != stocks[1] and len(tmp_keys) >= 2:
+                stocks += random.sample(tmp_keys, k=1)
+            stock_return = self.get_stock_return(stocks, wanted_card)
+            return stocks, None, stock_return
         else:
             card_afford = self.get_most_viable_affordable_card(affordable_cards_list)
             card_unafford, _ = self.get_most_viable_unaffordable_card(state)
             chip_buy_afford = self.evaluate_affordable_card(card_afford)
             stocks_need_unafford = self.get_stocks_need(card_unafford)
-            ratio_afford = card_afford.score / (chip_buy_afford + 2)
+            ratio_afford = card_afford.score / (chip_buy_afford + 4)
             ratio_unafford = card_unafford.score / (sum(stocks_need_unafford.values()) + 0.01)
-            # if chip_buy_afford > sum(stocks_need_unafford.values()):
             if ratio_afford > ratio_unafford:
                 stocks = self.check_get_stocks(card_unafford, state['Board'].stocks)
                 stock_return = self.get_stock_return(stocks, card_unafford)
                 if stocks == []:
                     return stocks, card_unafford, stock_return, 3
-                card = None
+                tmp_keys = []
+                for key in dict_stocks_onboard.keys():
+                    if key not in stocks:
+                        tmp_keys.append(key)
+                if len(stocks) == 1 and len(tmp_keys) == 1:
+                    stocks.append(tmp_keys[0])
+                elif len(stocks) == 1 and len(tmp_keys) >=2:
+                    stocks += random.sample(tmp_keys, k=2)
+                elif len(stocks) == 2 and stocks[0] != stocks[1] and len(tmp_keys) == 1:
+                    stocks.append(tmp_keys[0])
+                elif len(stocks) == 2 and stocks[0] != stocks[1] and len(tmp_keys) >= 2:
+                    stocks += random.sample(tmp_keys, k=1)
+                stock_return = self.get_stock_return(stocks, card_unafford)
+                return stocks, None, stock_return
             else:
-                card = card_afford
                 stocks = []
                 stock_return = []
-        return stocks, card, stock_return
-    
+                return [], card_afford, []    
 
     def get_stocks_need(self, wanted_card):
         '''
@@ -116,7 +144,7 @@ class Agent(Player):
         
         # get wanted_stocks
         if len(intersect_keys) == 0:
-            if stocks_onboard['auto_color'] != 0 and len(self.card_upside_down) < 2 and wanted_card not in self.card_upside_down:
+            if stocks_onboard['auto_color'] != 0 and len(self.card_upside_down) < 3 and wanted_card not in self.card_upside_down:
                 return []
             tmp_length = len(list_stocks_onboard)
             if tmp_length == 1:
@@ -333,7 +361,7 @@ class Agent(Player):
         for key in self.stocks_const:
             chips_buy.update({key: max(0, dict_buy[key] - self.stocks_const[key])})
             
-        return affordable_card.score / (sum(chips_buy.values()) + 3)
+        return affordable_card.score / (sum(chips_buy.values()) + 4)
 
 
     @staticmethod
